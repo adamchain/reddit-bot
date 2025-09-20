@@ -1,0 +1,22 @@
+{
+  "name": "ai-web-agent",
+  "version": "0.3.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node src/index.js",
+    "start": "node src/reddit/redditAgent.js",
+    "reddit": "node src/reddit/redditAgent.js",
+    "summary": "node src/tools/dailySummary.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.55.0",
+    "dotenv": "^16.4.5",
+    "openai": "^4.57.0",
+    "snoowrap": "^1.23.0",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.6"
+  }
+}
