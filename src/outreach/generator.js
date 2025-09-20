@@ -1,5 +1,5 @@
 import { persona } from "../persona.js";
-import { product } from "../valueProps.js";
+import { product, heyway, rooming } from "../valueProps.js";
 
 function adamPrefix() {
   const bits = [
@@ -11,20 +11,42 @@ function adamPrefix() {
   return bits[Math.floor(Math.random()*bits.length)];
 }
 
-export function makeComment({ postTitle, subreddit, painPoint }) {
-  const casual_openers = [
+export function makeComment({ postTitle, subreddit, painPoint, productChoice }) {
+  const chosenProduct = productChoice || heyway; // Default to heyway if not specified
+
+  // Property management specific openers
+  const propertyOpeners = [
+    `${adamPrefix()} - been dealing with ${painPoint || "property management headaches"} across several portfolio companies`,
+    `${adamPrefix()} and yeah this is brutal. seen this exact issue at like 4 different property management companies we work with`,
+    `${adamPrefix()} - angel investor here and property management pain points come up constantly with our real estate startups`
+  ];
+
+  // Call/appointment specific openers
+  const callOpeners = [
     `${adamPrefix()} - been dealing with ${painPoint || "no shows and followups"} at some of our portfolio companies`,
     `${adamPrefix()} and yeah this is a real pain point. seen it across like 3-4 companies we invest in`,
     `${adamPrefix()} - angel investor here and this exact issue comes up constantly with our startups`
   ];
 
-  const casual_bridges = [
+  const propertyBridges = [
+    `honestly one of our companies built something specifically for this`,
+    `we actually have a portfolio company that tackled this exact problem`,
+    `been working on this problem through one of our investments`
+  ];
+
+  const callBridges = [
     `honestly we helped build something for this exact problem`,
     `one of our companies actually solved this pretty well`,
     `we've been working on this problem for a while now`
   ];
 
-  const casual_benefits = [
+  const propertyBenefits = [
+    `way simpler than yardi or appfolio, designed for mid-size portfolios that outgrew spreadsheets`,
+    `handles tenant stuff, maintenance coordination, rent collection without all the bloat`,
+    `streamlined for 10-100 unit portfolios, cuts through the traditional pm software complexity`
+  ];
+
+  const callBenefits = [
     `basically cuts no shows way down and automates most of the followup stuff`,
     `handles the reminder calls, followups, all that tedious stuff automatically`,
     `pretty solid at catching people before they ghost and keeping leads warm`
@@ -36,9 +58,15 @@ export function makeComment({ postTitle, subreddit, painPoint }) {
     `lmk if you want to check it out or whatever, no pressure`
   ];
 
-  const opener = casual_openers[Math.floor(Math.random() * casual_openers.length)];
-  const bridge = casual_bridges[Math.floor(Math.random() * casual_bridges.length)];
-  const benefit = casual_benefits[Math.floor(Math.random() * casual_benefits.length)];
+  // Choose content based on product type
+  const isPropertyProduct = chosenProduct.name === "Rooming";
+  const openers = isPropertyProduct ? propertyOpeners : callOpeners;
+  const bridges = isPropertyProduct ? propertyBridges : callBridges;
+  const benefits = isPropertyProduct ? propertyBenefits : callBenefits;
+
+  const opener = openers[Math.floor(Math.random() * openers.length)];
+  const bridge = bridges[Math.floor(Math.random() * bridges.length)];
+  const benefit = benefits[Math.floor(Math.random() * benefits.length)];
   const close = casual_closes[Math.floor(Math.random() * casual_closes.length)];
 
   return `${opener}. ${bridge} - ${benefit}. ${close}`;
@@ -53,23 +81,44 @@ export function makeConsentReply() {
   return casual_consent[Math.floor(Math.random() * casual_consent.length)];
 }
 
-export function makeDM({ username, contextLink }) {
-  const casual_intros = [
+export function makeDM({ username, contextLink, productChoice }) {
+  const chosenProduct = productChoice || heyway; // Default to heyway
+  const isPropertyProduct = chosenProduct.name === "Rooming";
+
+  const callIntros = [
     `hey ${username}, adam here from the philly suburbs - you seemed interested in the call automation stuff`,
     `${username} - adam here, you asked about the solution we built for no shows and followups`,
     `hey ${username}, following up on that thread about call automation - adam from philly area`
   ];
 
-  const casual_bodies = [
+  const propertyIntros = [
+    `hey ${username}, adam here from philly suburbs - you seemed interested in the property management solution`,
+    `${username} - adam here, you asked about the property management tool we built`,
+    `hey ${username}, following up on that property management thread - adam from philly area`
+  ];
+
+  const callBodies = [
     `basically we help companies automate their reminder calls and followup sequences. cuts no shows way down`,
     `short version - automated calling system that handles reminders, followups, all that tedious stuff`,
     `we built this for our portfolio companies who were losing money on no shows and manual followups`
   ];
 
-  const casual_links = [
-    `heres a quick demo if you want to check it out: https://example.com/demo (no signup required)`,
-    `threw together a sandbox you can test: https://example.com/try (takes like 2 mins)`,
-    `demo link here if interested: https://example.com/test (no email gate or anything)`
+  const propertyBodies = [
+    `basically we built a simplified property management tool for mid-size portfolios. way less bloated than yardi`,
+    `short version - property management software designed for 10-100 units that outgrew spreadsheets`,
+    `we built this for portfolio companies tired of complex pm software that does too much`
+  ];
+
+  const callLinks = [
+    `heres a quick demo if you want to check it out: https://example.com/heyway-demo (no signup required)`,
+    `threw together a sandbox you can test: https://example.com/heyway-try (takes like 2 mins)`,
+    `demo link here if interested: https://example.com/heyway-test (no email gate or anything)`
+  ];
+
+  const propertyLinks = [
+    `heres a quick demo if you want to check it out: https://getrooming.com/demo (no signup required)`,
+    `threw together a sandbox you can test: https://getrooming.com/try (takes like 2 mins)`,
+    `demo link here if interested: https://getrooming.com (no email gate or anything)`
   ];
 
   const casual_outros = [
@@ -78,9 +127,13 @@ export function makeDM({ username, contextLink }) {
     `feel free to ignore if not your thing, or reply stop to opt out`
   ];
 
-  const intro = casual_intros[Math.floor(Math.random() * casual_intros.length)];
-  const body = casual_bodies[Math.floor(Math.random() * casual_bodies.length)];
-  const link = casual_links[Math.floor(Math.random() * casual_links.length)];
+  const intros = isPropertyProduct ? propertyIntros : callIntros;
+  const bodies = isPropertyProduct ? propertyBodies : callBodies;
+  const links = isPropertyProduct ? propertyLinks : callLinks;
+
+  const intro = intros[Math.floor(Math.random() * intros.length)];
+  const body = bodies[Math.floor(Math.random() * bodies.length)];
+  const link = links[Math.floor(Math.random() * links.length)];
   const outro = casual_outros[Math.floor(Math.random() * casual_outros.length)];
 
   return `${intro}.\n\n${body}. ${link}.\n\n${outro}.\n\ncontext: ${contextLink}`;

@@ -57,12 +57,40 @@ async function fetchAICallDiscussions({ searchLimitPerSub = 3 }) {
 
 function inferPainPoint(post) {
   const text = `${post.title} ${post.selftext || ""}`.toLowerCase();
+
+  // Property management pain points
+  if (text.includes("tenant") || text.includes("rental") || text.includes("property management")) return "tenant management";
+  if (text.includes("maintenance") || text.includes("repair") || text.includes("hvac")) return "maintenance coordination";
+  if (text.includes("rent collection") || text.includes("late rent")) return "rent collection";
+  if (text.includes("lease") || text.includes("eviction")) return "lease management";
+  if (text.includes("yardi") || text.includes("appfolio") || text.includes("property management software")) return "pm software complexity";
+
+  // Call/appointment pain points
   if (text.includes("no show")) return "no-shows";
   if (text.includes("voicemail")) return "voicemail callbacks";
   if (text.includes("follow")) return "lead follow-up";
   if (text.includes("twilio")) return "managing Twilio flows";
   if (text.includes("booking") || text.includes("schedule")) return "scheduling";
-  return "missed calls";
+
+  return "misc pain points";
+}
+
+function getRelevantProduct(post) {
+  const text = `${post.title} ${post.selftext || ""}`.toLowerCase();
+  const subreddit = post.subreddit?.display_name?.toLowerCase() || "";
+
+  // Property management focused subreddits and keywords
+  const propertyKeywords = ["tenant", "rental", "property", "lease", "rent", "maintenance", "yardi", "appfolio"];
+  const propertySubreddits = ["realestate", "landlord", "property", "investing"];
+
+  const hasPropertyKeywords = propertyKeywords.some(keyword => text.includes(keyword));
+  const isPropertySubreddit = propertySubreddits.some(sub => subreddit.includes(sub));
+
+  if (hasPropertyKeywords || isPropertySubreddit) {
+    return Math.random() < 0.7 ? rooming : heyway; // 70% Rooming for property content
+  } else {
+    return Math.random() < 0.8 ? heyway : rooming; // 80% HeyWay for other content
+  }
 }
 
 async function scanReplies(dmQueue) {
@@ -127,11 +155,16 @@ export async function runRedditOutreach() {
 
   console.log("Starting sophisticated Reddit outreach strategy...");
 
+  // Initial startup delay to avoid immediate rate limiting
+  const startupDelay = 2 * 60 * 60 * 1000; // 2 hours on startup
+  console.log(`Waiting ${startupDelay / 60000} minutes before starting to let account recover...`);
+  await sleep(startupDelay);
+
   while (true) {
     try {
-      // Check for AI call discussions every 30 minutes
+      // Check for AI call discussions every 2 hours (increased from 30 minutes)
       const now = Date.now();
-      if (now - lastAIDiscussionCheck > 30 * 60 * 1000) {
+      if (now - lastAIDiscussionCheck > 2 * 60 * 60 * 1000) {
         console.log("Checking for AI call discussions...");
         const aiPosts = await fetchAICallDiscussions({ searchLimitPerSub: 3 });
 
@@ -154,9 +187,13 @@ export async function runRedditOutreach() {
             console.warn("[AI response error]", e.message);
             if (e.message.includes('RATELIMIT')) {
               const match = e.message.match(/(\d+) minutes?/);
-              const waitMinutes = match ? parseInt(match[1]) : 10;
-              console.log(`Rate limited. Waiting ${waitMinutes + 1} minutes...`);
-              await sleep((waitMinutes + 1) * 60 * 1000);
+              const waitMinutes = match ? parseInt(match[1]) : 30;
+              console.log(`Rate limited. Account needs recovery. Waiting ${waitMinutes + 60} minutes...`);
+              await sleep((waitMinutes + 60) * 60 * 1000); // Add extra hour for recovery
+
+              // Reset timers to be extra conservative after rate limit
+              lastAIDiscussionCheck = Date.now();
+              console.log("Resetting timers to be more conservative after rate limit...");
             }
           }
         }
@@ -204,10 +241,12 @@ export async function runRedditOutreach() {
                 const hobbyFallback = maybeHobbyComment(subName) || "appreciate the discussion here, sub rules look strict on promos so ill just listen and learn";
                 commentText = hobbyFallback;
               } else {
+                const selectedProduct = getRelevantProduct(post);
                 commentText = makeComment({
                   postTitle: post.title,
                   subreddit: subName,
-                  painPoint: inferPainPoint(post)
+                  painPoint: inferPainPoint(post),
+                  productChoice: selectedProduct
                 }) + "\n\n" + makeConsentReply();
               }
             }
@@ -221,17 +260,21 @@ export async function runRedditOutreach() {
               console.warn("[original comment error]", e.message);
               if (e.message.includes('RATELIMIT')) {
                 const match = e.message.match(/(\d+) minutes?/);
-                const waitMinutes = match ? parseInt(match[1]) : 10;
-                console.log(`Rate limited. Waiting ${waitMinutes + 1} minutes...`);
-                await sleep((waitMinutes + 1) * 60 * 1000);
+                const waitMinutes = match ? parseInt(match[1]) : 30;
+                console.log(`Rate limited. Account needs recovery. Pausing bot for ${waitMinutes + 120} minutes...`);
+                await sleep((waitMinutes + 120) * 60 * 1000); // Add extra 2 hours for recovery
+
+                // Reset all timers to be ultra-conservative
+                lastAIDiscussionCheck = Date.now();
+                console.log("Account recovery mode: resetting all timers and being extra conservative...");
               }
             }
           }
         }
       }
 
-      // Wait 45-60 minutes before next cycle
-      const waitTime = (45 + Math.random() * 15) * 60 * 1000;
+      // Wait 3-4 hours before next cycle (much more conservative)
+      const waitTime = (3 + Math.random() * 1) * 60 * 60 * 1000;
       console.log(`Waiting ${Math.round(waitTime / 60000)} minutes until next cycle...`);
       await sleep(waitTime);
 
