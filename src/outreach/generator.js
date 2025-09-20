@@ -54,12 +54,36 @@ export function makeConsentReply() {
 }
 
 export function makeDM({ username, contextLink }) {
-  const intro = `Hey ${username}, Scott from Philly here — you asked for details.`;
-  const body  = `Short version: ${product.elevator}. Typical teams see fewer no-shows and faster lead cycles.`;
-  const bullets = product.bullets.map(b => `• ${b}`).join("\n");
-  const linkish = "Here’s a brief explainer + sandbox: https://example.com/heyway (no email gate).";
-  const outro = "If not useful, just reply 'stop' and I won’t reach out again.";
-  return [intro, body, "", bullets, "", linkish, "", product.disclosure, outro, `Context: ${contextLink}`].join("\n");
+  const casual_intros = [
+    `hey ${username}, adam here from the philly suburbs - you seemed interested in the call automation stuff`,
+    `${username} - adam here, you asked about the solution we built for no shows and followups`,
+    `hey ${username}, following up on that thread about call automation - adam from philly area`
+  ];
+
+  const casual_bodies = [
+    `basically we help companies automate their reminder calls and followup sequences. cuts no shows way down`,
+    `short version - automated calling system that handles reminders, followups, all that tedious stuff`,
+    `we built this for our portfolio companies who were losing money on no shows and manual followups`
+  ];
+
+  const casual_links = [
+    `heres a quick demo if you want to check it out: https://example.com/demo (no signup required)`,
+    `threw together a sandbox you can test: https://example.com/try (takes like 2 mins)`,
+    `demo link here if interested: https://example.com/test (no email gate or anything)`
+  ];
+
+  const casual_outros = [
+    `no worries if not relevant, just reply stop and ill leave you alone`,
+    `if its not useful just say stop and i wont bug you again`,
+    `feel free to ignore if not your thing, or reply stop to opt out`
+  ];
+
+  const intro = casual_intros[Math.floor(Math.random() * casual_intros.length)];
+  const body = casual_bodies[Math.floor(Math.random() * casual_bodies.length)];
+  const link = casual_links[Math.floor(Math.random() * casual_links.length)];
+  const outro = casual_outros[Math.floor(Math.random() * casual_outros.length)];
+
+  return `${intro}.\n\n${body}. ${link}.\n\n${outro}.\n\ncontext: ${contextLink}`;
 }
 
 // Hobby comments by category
