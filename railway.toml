@@ -1,6 +1,3 @@
-[build]
-builder = "NIXPACKS"
-
 [deploy]
 startCommand = "npm run reddit"
 restartPolicyType = "ON_FAILURE"
